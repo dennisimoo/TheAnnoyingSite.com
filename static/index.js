@@ -536,16 +536,19 @@ function startVibrateInterval () {
  * Intercept all user-initiated events and call the given the function, `onInput`.
  */
 function interceptUserInput (onInput) {
-  document.body.addEventListener('touchstart', onInput, { passive: false })
+  // Remove all event listeners to stop waiting for user input
+  // document.body.removeEventListener('touchstart', onInput, { passive: false });
+  // document.body.removeEventListener('mousedown', onInput);
+  // document.body.removeEventListener('mouseup', onInput);
+  // document.body.removeEventListener('click', onInput);
+  // document.body.removeEventListener('keydown', onInput);
+  // document.body.removeEventListener('keyup', onInput);
+  // document.body.removeEventListener('keypress', onInput);
 
-  document.body.addEventListener('mousedown', onInput)
-  document.body.addEventListener('mouseup', onInput)
-  document.body.addEventListener('click', onInput)
-
-  document.body.addEventListener('keydown', onInput)
-  document.body.addEventListener('keyup', onInput)
-  document.body.addEventListener('keypress', onInput)
+  // Automatically trigger the onInput function immediately
+  onInput();
 }
+
 
 /**
  * Start an invisible, muted video so we have a one ready to put into
